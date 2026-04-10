@@ -1,0 +1,501 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LibryConnect - Library Management</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --bg-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --card-bg: rgba(255, 255, 255, 0.95);
+            --glass: rgba(255, 255, 255, 0.25);
+            --text-dark: #1e293b;
+            --text-light: #64748b;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-gradient);
+            min-height: 100vh;
+            color: var(--text-dark);
+        }
+
+        /* Header */
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            padding: 20px 40px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .logo {
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary), #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .user-actions {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            font-size: 0.95rem;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+        }
+
+        .btn-secondary:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        /* CENTRAL SEARCH BAR */
+        .search-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 40px;
+        }
+
+        .search-bar {
+            position: relative;
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            padding: 24px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+
+        .search-input-group {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 20px 28px;
+            border: 2px solid rgba(99, 102, 241, 0.2);
+            border-radius: 16px;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            background: rgba(255,255,255,0.9);
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(99,102,241,0.15);
+            transform: translateY(-2px);
+        }
+
+        .search-btn {
+            padding: 20px 32px;
+            font-size: 1.1rem;
+            white-space: nowrap;
+        }
+
+        .search-filters {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .filter-chip {
+            padding: 8px 20px;
+            background: rgba(255,255,255,0.7);
+            border: 1px solid rgba(99,102,241,0.3);
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .filter-chip.active, .filter-chip:hover {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        /* RESULTS SECTION */
+        .results-section {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 0 40px;
+        }
+
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 32px;
+            color: rgba(255,255,255,0.9);
+        }
+
+        .results-count {
+            font-size: 1.1rem;
+            font-weight: 500;
+        }
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 24px;
+        }
+
+        .book-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 32px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+            border: 1px solid rgba(255,255,255,0.3);
+            transition: all 0.4s cubic-bezier(0.25,0.46,0.45,0.94);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .book-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary), #8b5cf6);
+        }
+
+        .book-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 25px 60px rgba(0,0,0,0.25);
+        }
+
+        .book-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+
+        .book-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            line-height: 1.3;
+        }
+
+        .book-author {
+            color: var(--text-light);
+            font-size: 1rem;
+            margin-bottom: 16px;
+        }
+
+        .book-status {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+            font-size: 0.95rem;
+        }
+
+        .status-badge {
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.8rem;
+        }
+
+        .status-available { background: rgba(16,185,129,0.2); color: var(--success); }
+        .status-loaned { background: rgba(245,158,11,0.2); color: var(--warning); }
+        .status-hold { background: rgba(99,102,241,0.2); color: var(--primary); }
+
+        .due-date {
+            background: rgba(239,68,68,0.1);
+            color: var(--danger);
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .book-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .btn-action {
+            flex: 1;
+            padding: 14px;
+            font-size: 0.9rem;
+            border-radius: 12px;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 80px 40px;
+            color: rgba(255,255,255,0.7);
+        }
+
+        .empty-icon {
+            font-size: 6rem;
+            margin-bottom: 24px;
+            opacity: 0.5;
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(10px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+
+        .modal {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            padding: 40px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 25px 70px rgba(0,0,0,0.3);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header { padding: 16px 24px; }
+            .search-container, .results-section { padding: 0 24px; }
+            .search-input-group { flex-direction: column; }
+            .results-grid { grid-template-columns: 1fr; }
+            .book-actions { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <div class="header-top">
+            <div class="logo">
+                <i class="fas fa-book-open"></i> LibryConnect
+            </div>
+            <div class="user-actions">
+                <a href="#" class="btn btn-secondary">
+                    <i class="fas fa-user"></i> My Account
+                </a>
+                <a href="#" class="btn btn-primary">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- CENTRAL SEARCH -->
+    <div class="search-container">
+        <div class="search-bar">
+            <div class="search-input-group">
+                <input type="text" class="search-input" id="bookSearch" placeholder="Search by title, author, ISBN, or keywords...">
+                <button class="btn btn-primary search-btn" onclick="searchBooks()">
+                    <i class="fas fa-search"></i> Search Books
+                </button>
+            </div>
+            <div class="search-filters">
+                <div class="filter-chip active" data-filter="all">All Books</div>
+                <div class="filter-chip" data-filter="available">Available</div>
+                <div class="filter-chip" data-filter="loaned">Loaned Out</div>
+                <div class="filter-chip" data-filter="hold">On Hold</div>
+                <div class="filter-chip" data-filter="due-soon">Due Soon</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- RESULTS -->
+    <div class="results-section">
+        <div class="results-header">
+            <div class="results-count" id="resultsCount">0 results found</div>
+            <div>
+                <select style="padding:10px 20px;border:1px solid rgba(255,255,255,0.3);border-radius:8px;background:var(--card-bg);">
+                    <option>Sort by relevance</option>
+                    <option>Sort by title</option>
+                    <option>Sort by author</option>
+                    <option>Sort by availability</option>
+                </select>
+            </div>
+        </div>
+
+        <div id="resultsGrid" class="results-grid">
+            <!-- Results appear here -->
+        </div>
+    </div>
+
+    <!-- Empty State -->
+    <div id="emptyState" class="empty-state" style="display:none;">
+        <div class="empty-icon">
+            <i class="fas fa-search"></i>
+        </div>
+        <h2 style="font-size:2.5rem;margin-bottom:16px;">No books found</h2>
+        <p style="font-size:1.2rem;max-width:500px;margin:0 auto;">Try adjusting your search terms or filters. Popular books are always available!</p>
+    </div>
+
+    <!-- Book Details Modal -->
+    <div id="bookModal" class="modal-overlay">
+        <div class="modal">
+            <h2 id="modalTitle">Book Details</h2>
+            <div id="modalContent" style="margin:24px 0;">
+                <!-- Dynamic content -->
+            </div>
+            <div style="display:flex;gap:16px;">
+                <button class="btn btn-primary" style="flex:1;" onclick="placeHold()">Place Hold</button>
+                <button class="btn btn-secondary" style="flex:1;" onclick="closeModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Sample book data
+        const books = [
+            {id:1, title:"The Great Gatsby", author:"F. Scott Fitzgerald", isbn:"978-0743273565", status:"available", dueDate:null, image:"https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=300"},
+            {id:2, title:"1984", author:"George Orwell", isbn:"978-0451524935", status:"loaned", dueDate:"2024-01-15", image:"https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=300"},
+            {id:3, title:"To Kill a Mockingbird", author:"Harper Lee", isbn:"978-0061120084", status:"hold", dueDate:null, image:"https://images.unsplash.com/photo-1543002588-bfa74002ed7a?w=300"},
+            {id:4, title:"Pride and Prejudice", author:"Jane Austen", isbn:"978-0141439518", status:"available", dueDate:null, image:"https://images.unsplash.com/photo-1560806887-1e4cd0b6cbd6?w=300"},
+            {id:5, title:"The Catcher in the Rye", author:"J.D. Salinger", isbn:"978-0316769488", status:"loaned", dueDate:"2024-01-20", image:"https://images.unsplash.com/photo-1544717301-32b5e2bf9e6a?w=300"},
+            {id:6, title:"Brave New World", author:"Aldous Huxley", isbn:"978-0060850524", status:"available", dueDate:null, image:"https://images.unsplash.com/photo-1532012197267-da84d127e765?w=300"}
+        ];
+
+        let currentResults = [];
+
+        // Search functionality
+        function searchBooks() {
+            const query = document.getElementById('bookSearch').value.toLowerCase();
+            const activeFilter = document.querySelector('.filter-chip.active').dataset.filter;
+            
+            currentResults = books.filter(book => {
+                const matchesSearch = book.title.toLowerCase().includes(query) ||
+                                    book.author.toLowerCase().includes(query) ||
+                                    book.isbn.includes(query);
+                
+                let matchesFilter = true;
+                if(activeFilter !== 'all') {
+                    if(activeFilter === 'available') matchesFilter = book.status === 'available';
+                    if(activeFilter === 'loaned') matchesFilter = book.status === 'loaned';
+                    if(activeFilter === 'hold') matchesFilter = book.status === 'hold';
+                    if(activeFilter === 'due-soon') matchesFilter = book.status === 'loaned';
+                }
+                
+                return matchesSearch && matchesFilter;
+            });
+
+            renderResults();
+        }
+
+        function renderResults() {
+            const grid = document.getElementById('resultsGrid');
+            const count = document.getElementById('resultsCount');
+            const emptyState = document.getElementById('emptyState');
+
+            count.textContent = `${currentResults.length} results found`;
+            
+            if(currentResults.length === 0) {
+                grid.style.display = 'none';
+                emptyState.style.display = 'block';
+                return;
+            }
+
+            grid.style.display = 'grid';
+            emptyState.style.display = 'none';
+
+            grid.innerHTML = currentResults.map(book => `
+                <div class="book-card" onclick="showBookModal(${book.id})">
+                    <img src="${book.image}" alt="${book.title}" class="book-image">
+                    <div class="book-title">${book.title}</div>
+                    <div class="book-author">by ${book.author}</div>
+                    <div class="book-status">
+                        <span class="status-badge status-${book.status}">${book.status.toUpperCase()}</span>
+                        ${book.dueDate ? `<span class="due-date">Due ${book.dueDate}</span>` : ''}
+                    </div>
+                    <div class="book-actions">
+                        <button class="btn btn-primary btn-action">${book.status === 'available' ? 'Loan Now' : 'Place Hold'}</button>
+                        <button class="btn btn-secondary btn-action">Details</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function showBookModal(id) {
+            const book = books.find(b => b.id === id);
+            document.getElementById('modalTitle').textContent = book.title;
+            document.getElementById('bookModal').style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('bookModal').style.display = 'none';
+        }
+
+        function placeHold() {
+            alert('Hold placed successfully! You\'ll be notified when available.');
+            closeModal();
+        }
+
+        // Event listeners
+        document.getElementById('bookSearch').addEventListener
