@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FreshBite Prep</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 20px 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 2.2em;
+            font-weight: 800;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-tabs {
+            display: flex;
+            gap: 10px;
+        }
+
+        .nav-tab {
+            padding: 12px 24px;
+            border: none;
+            background: transparent;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            color: #666;
+        }
+
+        .nav-tab.active {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .login-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .food-gallery {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            height: 70vh;
+            overflow-y: auto;
+        }
+
+        .section-title {
+            font-size: 1.8em;
+            margin-bottom: 25px;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .food-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .food-card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .food-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .food-image {
+            width: 100%;
+            height: 160px;
+            object-fit: cover;
+        }
+
+        .food-info {
+            padding: 20px;
+        }
+
+        .food-name {
+            font-size: 1.2em;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: #333;
+        }
+
+        .food-price {
+            font-size: 1.1em;
+            font-weight: 700;
+            color: #667eea;
+        }
+
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .sidebar-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            height: fit-content;
+        }
+
+        .nutrients-list {
+            list-style: none;
+        }
+
+        .nutrient-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .nutrient-item:last-child {
+            border-bottom: none;
+        }
+
+        .side-drawer {
+            position: fixed;
+            top: 0;
+            right: -400px;
+            width: 400px;
+            height: 100vh;
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(20px);
+            box-shadow: -10px 0 50px rgba(0, 0, 0, 0.3);
+            transition: right 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            z-index: 1000;
+            padding: 30px;
+        }
+
+        .side-drawer.open {
+            right: 0;
+        }
+
+        .drawer-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.4s ease;
+            z-index: 999;
+        }
+
+        .drawer-overlay.open {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .drawer-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .close-drawer {
+            background: none;
+            border: none;
+            font-size: 1.5em;
+            cursor: pointer;
+            color: #666;
+            padding: 5px;
+        }
+
+        .login-form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-group label {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .form-group input {
+            padding: 15px;
+            border: 2px solid #e8e8e8;
+            border-radius: 12px;
+            font-size: 1em;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .login-submit {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 12px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .login-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .side-drawer {
+                width: 100%;
+                right: -100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="logo">🍽️ FreshBite Prep</div>
+            <div class="nav-tabs">
+                <button class="nav-tab active" data-tab="meals">Meals</button>
+                <button class="nav-tab" data-tab="billing">Billing</button>
+                <button class="nav-tab" data-tab="plans">Plans</button>
+            </div>
+            <button class="login-btn" id="loginToggle">Login</button>
+        </header>
+
+        <div class="main-content">
+            <div class="food-gallery">
+                <h2 class="section-title">🍕 Food Gallery</h2>
+                <div class="food-grid" id="foodContent">
+                </div>
+            </div>
+
+            <div class="sidebar">
+                <div class="sidebar-card">
+                    <h3 class="section-title">📊 Nutrients</h3>
+                    <ul class="nutrients-list">
+                        <li class="nutrient-item"><span>Calories</span><span>450 kcal</span></li>
+                        <li class="nutrient-item"><span>Protein</span><span>32g</span></li>
+                        <li class="nutrient-item"><span>Carbs</span><span>58g</span></li>
+                        <li class="nutrient-item"><span>Fat</span><span>12g</span></li>
+                        <li class="nutrient-item"><span>Fiber</span><span>8g</span></li>
+                    </ul>
+                </div>
+
+                <div class="sidebar-card">
+                    <h3 class="section-title">📋 Quick Plans</h3>
+                    <div style="display: flex; flex-direction: column; gap: 15px;">
+                        <button style="padding: 15px; border: none; background: linear-gradient(135deg, #667eea, #764ba2); color: white; border-radius: 12px; font-weight: 600; cursor: pointer;">Starter Plan</button>
+                        <button style="padding: 15px; border: none; background: linear-gradient(135deg, #f093fb, #f5576c); color: white; border-radius: 12px; font-weight: 600; cursor: pointer;">Premium Plan</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="drawer-overlay" id="drawerOverlay"></div>
+
+    <div class="side-drawer" id="sideDrawer">
+        <div class="drawer-header">
+            <h2>🔐 Login</h2>
+            <button class="close-drawer" id="closeDrawer">×</button>
+        </div>
+        <form class="login-form">
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" placeholder="your@email.com" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" placeholder="••••••••" required>
+            </div>
+            <button type="submit" class="login-submit">Login</button>
+        </form>
+    </div>
+
+    <script>
+        // Sample food data
+        const foodData = [
+            { name: 'Grilled Chicken Bowl', price: '200 PHP', image: 'https://images.unsplash.com/photo-1603360946369-dc9bb6258143?w=400&h=200&fit=crop' },
+            { name: 'Vegan Buddha Bowl', price: '130 PHP', image: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=400&h=200&fit=crop' },
+            { name: 'Salmon Poke', price: '300 PHP', image: 'https://images.unsplash.com/photo-1579586140626-0a78b4b7ef5c?w=400&h=200&fit=crop' },
+            { name: 'Beef Burrito', price: '220 PHP', image: 'https://images.unsplash.com/photo-1621996346565-e3dbc353d2e5?w=400&h=200&fit=crop' },
+            { name: 'Quinoa Salad', price: '150 PHP', image: 'https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=400&h=200&fit=crop' },
+            { name: 'Turkey Wrap', price: '400 PHP', image: 'https://images.unsplash.com/photo-1529699211951-766db98439f5?w=400&h=200&fit=crop' }
+        ];
+
+        function initFoodGallery() {
+            const foodGrid = document.getElementById('foodContent');
+            foodGrid.innerHTML = foodData.map(food => `
+                <div class="food-card">
+                    <img src="${food.image}" alt="${food.name}" class="food-image">
+                    <div class="food-info">
+                        <div class="food-name">${food.name}</div>
+                        <div class="food-price">${food.price}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        document.querySelectorAll('.nav-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+            });
+        });
+
+        const loginToggle = document.getElementById('loginToggle');
+        const sideDrawer = document.getElementById('sideDrawer');
+        const drawerOverlay = document.getElementById('drawerOverlay');
+        const closeDrawer = document.getElementById('closeDrawer');
+
+        function openDrawer() {
+            sideDrawer.classList.add('open');
+            drawerOverlay.classList.add('open');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeDrawerFunc() {
+            sideDrawer.classList.remove('open');
+            drawerOverlay.classList.remove('open');
+            document.body.style.overflow = '';
+        }
+
+        loginToggle.addEventListener('click', openDrawer);
+        closeDrawer.addEventListener('click', closeDrawerFunc);
+        drawerOverlay.addEventListener('click', closeDrawerFunc);
+
+        // Login form
+        document.querySelector('.login-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            // Simulate login
+            setTimeout(() => {
+                alert('Login successful! 🎉');
+                closeDrawerFunc();
+                document.getElementById('loginToggle').textContent = 'Dashboard';
+            }, 500);
+        });
+
+        initFoodGallery();
+    </script>
+</body>
+</html>
