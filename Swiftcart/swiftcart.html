@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SwiftCart | Fast Shopping</title>
+    <style>
+        /* --- 1. CSS VARIABLES & RESET --- */
+        :root {
+            --primary: #007BFF; /* Electric Blue */
+            --secondary: #28A745; /* Emerald Green */
+            --bg: #F8F9FA;
+            --text: #212529;
+            --border: #DEE2E6;
+            --sidebar-width: 250px;
+            --right-col-width: 320px;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        
+        body { background-color: var(--bg); color: var(--text); display: flex; flex-direction: column; height: 100vh; }
+
+        /* --- 2. LAYOUT (F-PATTERN GRID) --- */
+        .app-container {
+            display: grid;
+            grid-template-columns: var(--sidebar-width) 1fr var(--right-col-width);
+            grid-template-rows: 60px 1fr;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        /* --- 3. HEADER (TOP) --- */
+        header {
+            grid-column: 1 / -1;
+            background: white;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+            z-index: 10;
+        }
+
+        .logo { font-size: 1.5rem; font-weight: bold; color: var(--primary); }
+        .search-bar { flex: 1; max-width: 400px; margin: 0 20px; }
+        .search-bar input { width: 100%; padding: 8px 12px; border: 1px solid var(--border); border-radius: 4px; }
+        .cart-icon { position: relative; cursor: pointer; }
+        .badge { position: absolute; top: -8px; right: -8px; background: red; color: white; font-size: 0.7rem; padding: 2px 6px; border-radius: 50%; }
+
+        /* --- 4. LEFT SIDEBAR (MENU) --- */
+        .left-sidebar {
+            background: white;
+            border-right: 1px solid var(--border);
+            padding: 20px;
+            overflow-y: auto;
+        }
+        .category-item { padding: 10px; cursor: pointer; border-radius: 4px; transition: 0.2s; }
+        .category-item:hover { background: #e9ecef; color: var(--primary); }
+
+        /* --- 5. CENTER (PRODUCTS) --- */
+        .main-content {
+            padding: 20px;
+            overflow-y: auto;
+        }
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+        }
+        .product-card {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 15px;
+            transition: 0.2s;
+        }
+        .product-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .product-img { width: 100%; height: 150px; background: #eee; border-radius: 4px; margin-bottom: 10px; display: flex; align-items: center; justify-content: center; color: #aaa; }
+        .product-title { font-weight: 600; margin-bottom: 5px; }
+        .product-price { color: var(--primary); font-weight: bold; }
+        .btn-add { width: 100%; margin-top: 10px; padding: 8px; background: var(--primary); color: white; border: none; border-radius: 4px; cursor: pointer; }
+        .btn-add:hover { background: #0056b3; }
+
+        /* --- 6. RIGHT SIDEBAR (CART / CHECKOUT / TRACK) --- */
+        .right-sidebar {
+            background: white;
+            border-left: 1px solid var(--border);
+            padding: 20px;
+            overflow-y: auto;
+            position: sticky;
+            top: 0;
+            height: 100%;
+        }
+        
+        .sidebar-section { display: none; }
+        .sidebar-section.active { display: block; }
+
+        /* Cart Styles */
+        .cart-item { display: flex; justify-content: space-between; margin-bottom: 10px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+        .btn-checkout { width: 100%; padding: 12px; background: var(--secondary); color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; }
+        
+        /* Checkout Styles */
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; font-size: 0.9rem; }
+        .form-group input { width: 100%; padding: 8px; border: 1px solid var(--border); border-radius: 4px; }
+        
+        /* Tracking Styles */
+        .tracking-status { text-align: center; margin-bottom: 20px; }
+        .status-badge { background: var(--secondary); color: white; padding: 5px 10px; border-radius: 20px; font-size: 0.8rem; }
+        .map-placeholder { width: 100%; height: 150px; background: #e9ecef; border-radius: 4px; margin: 15px 0; display: flex; align-items: center; justify-content: center; color: #666; }
+        .progress-bar { height: 6px; background: #eee; border-radius: 3px; overflow: hidden; margin-top: 10px; }
+        .progress-fill { height: 100%; background: var(--primary); width: 75%; }
+
+        /* --- 7. RESPONSIVE --- */
+        @media (max-width: 900px) {
+            .app-container { grid-template-columns: 1fr; grid-template-rows: 60px auto auto; }
+            .left-sidebar { display: none; } /* Hide left menu on mobile */
+            .right-sidebar { position: fixed; bottom: 0; left: 0; right: 0; height: auto; border-left: none; border-top: 1px solid var(--border); z-index: 100; }
+            .main-content { padding-bottom: 100px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        <!-- HEADER -->
+        <header>
+            <div class="logo">SwiftCart</div>
+            <div class="search-bar">
+                <input type="text" placeholder="Search products...">
+            </div>
+            <div class="cart-icon" onclick="showCart()">
+                🛒 <span class="badge" id="cart-count">0</span>
+            </div>
+        </header>
+
+        <!-- LEFT SIDEBAR (Menu) -->
+        <aside class="left-sidebar">
+            <h3>Categories</h3>
+            <div class="category-item">Electronics</div>
+            <div class="category-item">Home & Living</div>
+            <div class="category-item">Fashion</div>
+            <div class="category-item">Sports</div>
+            <hr style="margin: 10px 0; border: 0; border-top: 1px solid #eee;">
+            <h3>Filters</h3>
+            <div class="category-item">Price: Low to High</div>
+            <div class="category-item">In Stock Only</div>
+        </aside>
+
+        <!-- CENTER (Products) -->
+        <main class="main-content">
+            <div class="product-grid" id="product-grid">
+                <!-- Products injected via JS -->
+            </div>
+        </main>
+
+        <!-- RIGHT SIDEBAR (Cart / Checkout / Track) -->
+        <aside class="right-sidebar">
+            
+            <!-- STATE 1: EMPTY / PROMO -->
+            <div id="view-empty" class="sidebar-section active">
+                <h3>Your Cart</h3>
+                <p style="color: #666; margin-top: 10px;">Browse products to add items here.</p>
+            </div>
+
+            <!-- STATE 2: CART SUMMARY -->
+            <div id="view-cart" class="sidebar-section">
+                <h3>Cart Summary</h3>
+                <div id="cart-items-container" style="margin: 15px 0;"></div>
+                <div style="display: flex; justify-content: space-between; font-weight: bold; margin-bottom: 15px;">
+                    <span>Total:</span>
+                    <span id="cart-total">$0.00</span>
+                </div>
+                <button class="btn-checkout" onclick="goToCheckout()">Proceed to Checkout</button>
+            </div>
+
+            <!-- STATE 3: SHIPPING / CHECKOUT -->
+            <div id="view-checkout" class="sidebar-section">
+                <h3>Shipping Details</h3>
+                <div class="form-group">
+                    <label>Full Name</label>
+                    <input type="text" placeholder="John Doe">
+                </div>
+                <div class="form-group">
+                    <label>Address</label>
+                    <input type="text" placeholder="123 Swift St">
+                </div>
+                <div class="form-group">
+                    <label>Zip Code</label>
+                    <input type="text" placeholder="10001">
+                </div>
+                <div style="display: flex; justify-content: space-between; font-weight: bold; margin-bottom: 15px;">
+                    <span>Total:</span>
+                    <span id="checkout-total">$0.00</span>
+                </div>
+                <button class="btn-checkout" onclick="placeOrder()">Place Order</button>
+            </div>
+
+            <!-- STATE 4: TRACKING -->
+            <div id="view-tracking" class="sidebar-section">
+                <div class="tracking-status">
+                    <h3>Order #SC-8821</h3>
+                    <span class="status-badge">In Transit</span>
+                </div>
+                <div class="map-placeholder">
+                    📍 Live Map View
+                </div>
+                <p><strong>ETA:</strong> Today, 2:00 PM</p>
+                <div class="progress-bar">
+                    <div class="progress-fill"></div>
+                </div>
+                <p style="font-size: 0.8rem; color: #666; margin-top: 10px;">Your package is on the way!</p>
+                <button class="btn-checkout" style="background: #6c757d; margin-top: 15px;" onclick="resetApp()">Continue Shopping</button>
+            </div>
+
+        </aside>
+    </div>
+
+    <script>
+        // --- DATA ---
+        const products = [
+            { id: 1, name: "Wireless Headphones", price: 59.99 },
+            { id: 2, name: "Smart Watch", price: 129.99 },
+            { id: 3, name: "Running Shoes", price: 89.50 },
+            { id: 4, name: "Laptop Stand", price: 25.00 },
+            { id: 5, name: "Mechanical Keyboard", price: 110.00 },
+            { id: 6, name: "USB-C Hub", price: 35.00 }
+        ];
+
+        let cart = [];
+        let currentView = 'empty';
+
+        // --- INIT ---
+        function init() {
+            renderProducts();
+        }
+
+        // --- RENDER PRODUCTS ---
+        function renderProducts() {
+            const grid = document.getElementById('product-grid');
+            grid.innerHTML = products.map(p => `
+                <div class="product-card">
+                    <div class="product-img">Image</div>
+                    <div class="product-title">${p.name}</div>
+                    <div class="product-price">$${p.price.toFixed(2)}</div>
+                    <button class="btn-add" onclick="addToCart(${p.id})">Add to Cart</button>
+                </div>
+            `).join('');
+        }
+
+        // --- CART LOGIC ---
+        function addToCart(id) {
+            const product = products.find(p => p.id === id);
+            cart.push(product);
+            updateCartUI();
+        }
+
+        function updateCartUI() {
+            document.getElementById('cart-count').innerText = cart.length;
+            
+            const container = document.getElementById('cart-items-container');
+            const totalEl = document.getElementById('cart-total');
+            const checkoutTotalEl = document.getElementById('checkout-total');
+            
+            let total = 0;
+            container.innerHTML = cart.map((item, index) => {
+                total += item.price;
+                return `
+                <div class="cart-item">
+                    <span>${item.name}</span>
+                    <span>$${item.price.toFixed(2)}</span>
+                </div>`;
+            }).join('');
+
+            totalEl.innerText = `$${total.toFixed(2)}`;
+            checkoutTotalEl.innerText = `$${total.toFixed(2)}`;
+        }
+
+        // --- NAVIGATION LOGIC ---
+        function switchView(viewName) {
+            // Hide all
+            document.querySelectorAll('.sidebar-section').forEach(el => el.classList.remove('active'));
+            // Show target
+            document.getElementById(`view-${viewName}`).classList.add('active');
+            currentView = viewName;
+        }
+
+        function goToCheckout() {
+            if(cart.length === 0) return alert("Cart is empty!");
+            switchView('checkout');
+        }
+
+        function placeOrder() {
+            // Simulate processing
+            const btn = document.querySelector('#view-checkout .btn-checkout');
+            btn.innerText = "Processing...";
+            setTimeout(() => {
+                btn.innerText = "Place Order";
+                cart = []; // Clear cart
+                updateCartUI();
+                switchView('tracking');
+            }, 1000);
+        }
+
+        function resetApp() {
+            switchView('empty');
+        }
+
+        // Run
+        init();
+    </script>
+</body>
+</html>
