@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MusicBox - Login</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(to bottom, #1a1a2e, #2d1f3d);
+            min-height: 100vh;
+            font-family: Arial, sans-serif;
+        }
+
+        .flower-left, .flower-right {
+            position: fixed;
+            bottom: 0;
+            font-size: 80px;
+            opacity: 0.6;
+        }
+
+        .flower-left { left: 30px; }
+        .flower-right { right: 30px; transform: scaleX(-1); }
+
+        .login-box {
+            background: #16213e;
+            padding: 40px;
+            border-radius: 20px;
+            width: 100%;
+            max-width: 350px;
+            margin: auto;
+            margin-top: 100px;
+        }
+
+        .banner {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .banner img {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: #ff8080;
+        }
+
+        .banner h1 {
+            color: #ff8080;
+            font-size: 26px;
+            margin-top: 15px;
+        }
+
+        .login-form input {
+            width: 100%;
+            padding: 14px;
+            margin-bottom: 15px;
+            border: 2px solid #0f3460;
+            border-radius: 10px;
+            background: #1a1a2e;
+            color: white;
+        }
+
+        .login-form button {
+            width: 100%;
+            padding: 14px;
+            background: #ff8080;
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .enter-btn {
+            display: block;
+            text-align: center;
+            padding: 14px;
+            background: #ff8080;
+            border-radius: 10px;
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+            margin-top: 15px;
+        }
+
+        .signup {
+            text-align: center;
+            margin-top: 20px;
+            color: #888;
+        }
+
+        .signup a {
+            color: #ff8080;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="flower-left">🌸</div>
+    <div class="flower-right">🌸</div>
+
+    <div class="login-box">
+        <div class="banner">
+            <a href="LoginMusic.html">
+                <img src="BannerMusic.Webp" alt="Music Banner">
+                <h1>MusicBox</h1>
+            </a>
+        </div>
+
+        <form class="login-form">
+            <input type="email" placeholder="Email">
+            <input type="password" placeholder="Password">
+            <button type="button" onclick="window.location.href='music.html'">Login</button>
+        </form>
+
+        <a href="music.html" class="enter-btn">🎵 Go to Music</a>
+
+        <p class="signup">Don't have an account? <a href="#">Sign up</a></p>
+    </div>
+</body>
+</html>
